@@ -1,0 +1,1496 @@
+ <mujoco>
+  <compiler angle="radian"
+              inertiafromgeom="auto"
+              texturedir="textures/"
+              meshdir="mesh/visual/"/>
+  <option timestep="1e-4"
+            iterations="35"
+            tolerance="1e-10"
+            impratio="20"
+            cone="elliptic" />
+  <size njmax="10000" nconmax="5000" nstack="15000000"/>
+
+  <default>
+      <geom contype='1' conaffinity='1' condim='6' solref="2e-4 1" solimp=".995 .995 .01" friction="1.3 0.01 0.0005" />
+      <joint armature="0.01" damping=".1"/>
+      <!-- <site rgba='1 1 1 0' /> -->
+      <default class="gripperTrans">
+         <joint damping='30' />
+      </default>
+      <default class="gripperRot">
+         <joint damping='65'/>
+      </default>
+      <default class="GRIPPER">
+         <joint damping='15'/>
+      </default>
+  </default>
+
+  <visual>
+    <map fogstart="3" fogend="5" znear="0.05"/>
+    <quality shadowsize="2048"/>
+    <scale  framelength="2.5"
+            framewidth="0.06"
+            contactwidth="1.1"
+            contactheight="0.01"
+            forcewidth="0.01"
+            />
+  </visual>
+
+    <!--Assets-->
+  <asset>
+    <!--Textures-->
+    <texture name="ur5_tex"     type="2d"       builtin="flat" height="32" width="32" rgb1="0.45 0.45 0.45" />
+    <texture name="gripper_tex" type="2d"       builtin="flat" height="32" width="32" rgb1="0.45 0.45 0.45" rgb2="0 0 0"/>
+    <texture name="bench_tex"   type="2d"       builtin="flat" height="32" width="32" rgb1="0.7 0.7 0.7" />
+    <texture name="sky_tex"     type="skybox"   builtin="gradient" width="100" height="100" rgb1="1 1 1" rgb2="0.3 0.3 0.8" />
+    <texture name="texgeom"     type="cube"     builtin="flat" mark="cross" width="127" height="1278" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01" />
+    <texture name="floor_tex"   type="2d"        builtin="checker" rgb1=".2 .3 .4" rgb2=".1 .2 .3" width="100" height="100" />
+    <texture name="wood"        type="cube"     file="wood2.png"/>
+    <texture name="metal"        type="cube"     file="metal2.png"/>
+    <!--Materials-->
+    <material name="ur5_mat"        texture="ur5_tex"   shininess="0.9" specular="0.75" reflectance="0.3"/>
+    <material name="gripper_mat"    texture="gripper_tex"   shininess="0.9" specular="0.75" reflectance="0.4"/>
+    <material name='floor_mat'      texture="floor_tex"  shininess="0.8" texrepeat="10 10" specular="0.7"  reflectance="0.5" />
+    <material name='geom'           texture="texgeom"   texuniform="true" />
+    <material name="bench_mat"      texture="metal"   shininess="0.1" specular="0.5" reflectance="0.2"/>
+    <material name="tablecube"      texture="wood" rgba=".8 .8 .8 1"/>
+  </asset>
+
+  <worldbody>
+    <!--Lighting parameters-->
+    <light name="light3" mode="targetbody" target="gripperLink_0" directional="true" pos="1 1 5" />
+
+    <geom type='capsule' size='0.03 0.3' pos='-1.7 -2 0' rgba='1 0 0 1' quat='0.7071068  0 0.7071068 0' />
+    <geom type='capsule' size='0.03 0.3' pos='-2 -1.7 0' rgba='0 1 0 1' quat='0.7071068  0.7071068 0 0' />
+    <geom type='capsule' size='0.03 0.3' pos='-2 -2 0.3' rgba='0 0 1 1' />
+
+     <!--Floor Property-->
+    <geom name='floor' material="floor_mat" pos='0 0 -1' size='2.5 2.5 0.1'  type='plane' />
+
+    <!-- Insert table here! -->
+    <body name="table" pos="0 0 0" >
+        <body name="handle" pos="-0.06 0.05 0.02" euler="0 0 0" >
+            <joint name="handle_x" type="slide" pos="0 0 0" axis="1 0 0" damping="10" />
+            <joint name="handle_y" type="slide" pos="0 0 0" axis="0 1 0" damping="10" />
+            <joint name="handle_z" type="slide" pos="0 0 0" axis="0 0 1" damping="10" />
+            <joint name="handle_rot_x" type="hinge" pos="0 0 0" axis="1 0 0" damping="10" />
+            <joint name="handle_rot_y" type="hinge" pos="0 0 0" axis="0 1 0" damping="10" />
+            <joint name="handle_rot_z" type="hinge" pos="0 0 0" axis="0 0 1" damping="10" />
+            <geom name="handle" material="bench_mat" type="box" size="0.04 0.07 0.01" rgba="1 0 0 1" density="50" />
+            <site name='handle_0' type='sphere' size='0.01' pos='0 -0.05 0' rgba='0 1 0 1' />
+            <site name='handle_1' type='sphere' size='0.01' pos='0 -0.03 0' rgba='0 1 0 1' />
+            <site name='handle_2' type='sphere' size='0.01' pos='0 -0.01 0' rgba='0 1 0 1' />
+            <site name='handle_3' type='sphere' size='0.01' pos='0 0.01 0' rgba='0 1 0 1' />
+            <site name='handle_4' type='sphere' size='0.01' pos='0 0.03 0' rgba='0 1 0 1' />
+            <site name='handle_5' type='sphere' size='0.01' pos='0 0.05 0' rgba='0 1 0 1' />
+            <body name="handle2" pos="0 0 0.06" euler="-0.0 0.0 0.0" >
+                <geom name="handle2" material="bench_mat" pos="0 0 0.05" type="box" size="0.01 0.02 0.08" density="50" rgba="1 0 0 1"/>
+            </body>
+        </body>
+        <body name="tabletop" pos="0.0 0.0 -0.6" >
+            <geom name="tabletop" material="tablecube" euler="1.5707 0 0" size="0.6 0.3" type="cylinder" />
+        </body>
+        <site name="table_0_0" type="sphere" size="0.005" pos="0.0 0.0 0.0"  />
+        <site name="table_0_1" type="sphere" size="0.005" pos="0.0 0.02 0.0"  />
+        <site name="table_0_2" type="sphere" size="0.005" pos="0.0 0.04 0.0"  />
+        <site name="table_0_3" type="sphere" size="0.005" pos="0.0 0.06 0.0"  />
+        <site name="table_0_4" type="sphere" size="0.005" pos="0.0 0.08 0.0"  />
+        <site name="table_0_5" type="sphere" size="0.005" pos="0.0 0.1 0.0"  />
+        <site name="table_1_0" type="sphere" size="0.005" pos="0.01999629650205217 0.0 -0.0003333024702788512"  />
+        <site name="table_1_1" type="sphere" size="0.005" pos="0.01999629650205217 0.02 -0.0003333024702788512"  />
+        <site name="table_1_2" type="sphere" size="0.005" pos="0.01999629650205217 0.04 -0.0003333024702788512"  />
+        <site name="table_1_3" type="sphere" size="0.005" pos="0.01999629650205217 0.06 -0.0003333024702788512"  />
+        <site name="table_1_4" type="sphere" size="0.005" pos="0.01999629650205217 0.08 -0.0003333024702788512"  />
+        <site name="table_1_5" type="sphere" size="0.005" pos="0.01999629650205217 0.1 -0.0003333024702788512"  />
+        <site name="table_2_0" type="sphere" size="0.005" pos="0.0399703769540358 0.0 -0.0013328395793266168"  />
+        <site name="table_2_1" type="sphere" size="0.005" pos="0.0399703769540358 0.02 -0.0013328395793266168"  />
+        <site name="table_2_2" type="sphere" size="0.005" pos="0.0399703769540358 0.04 -0.0013328395793266168"  />
+        <site name="table_2_3" type="sphere" size="0.005" pos="0.0399703769540358 0.06 -0.0013328395793266168"  />
+        <site name="table_2_4" type="sphere" size="0.005" pos="0.0399703769540358 0.08 -0.0013328395793266168"  />
+        <site name="table_2_5" type="sphere" size="0.005" pos="0.0399703769540358 0.1 -0.0013328395793266168"  />
+        <site name="table_3_0" type="sphere" size="0.005" pos="0.05990004998809689 0.0 -0.0029975008331845077"  />
+        <site name="table_3_1" type="sphere" size="0.005" pos="0.05990004998809689 0.02 -0.0029975008331845077"  />
+        <site name="table_3_2" type="sphere" size="0.005" pos="0.05990004998809689 0.04 -0.0029975008331845077"  />
+        <site name="table_3_3" type="sphere" size="0.005" pos="0.05990004998809689 0.06 -0.0029975008331845077"  />
+        <site name="table_3_4" type="sphere" size="0.005" pos="0.05990004998809689 0.08 -0.0029975008331845077"  />
+        <site name="table_3_5" type="sphere" size="0.005" pos="0.05990004998809689 0.1 -0.0029975008331845077"  />
+        <site name="table_4_0" type="sphere" size="0.005" pos="0.07976317357338844 0.0 -0.005325436779492376"  />
+        <site name="table_4_1" type="sphere" size="0.005" pos="0.07976317357338844 0.02 -0.005325436779492376"  />
+        <site name="table_4_2" type="sphere" size="0.005" pos="0.07976317357338844 0.04 -0.005325436779492376"  />
+        <site name="table_4_3" type="sphere" size="0.005" pos="0.07976317357338844 0.06 -0.005325436779492376"  />
+        <site name="table_4_4" type="sphere" size="0.005" pos="0.07976317357338844 0.08 -0.005325436779492376"  />
+        <site name="table_4_5" type="sphere" size="0.005" pos="0.07976317357338844 0.1 -0.005325436779492376"  />
+        <site name="table_5_0" type="sphere" size="0.005" pos="0.09953767961604901 0.0 -0.00831406106224497"  />
+        <site name="table_5_1" type="sphere" size="0.005" pos="0.09953767961604901 0.02 -0.00831406106224497"  />
+        <site name="table_5_2" type="sphere" size="0.005" pos="0.09953767961604901 0.04 -0.00831406106224497"  />
+        <site name="table_5_3" type="sphere" size="0.005" pos="0.09953767961604901 0.06 -0.00831406106224497"  />
+        <site name="table_5_4" type="sphere" size="0.005" pos="0.09953767961604901 0.08 -0.00831406106224497"  />
+        <site name="table_5_5" type="sphere" size="0.005" pos="0.09953767961604901 0.1 -0.00831406106224497"  />
+        <site name="table_6_0" type="sphere" size="0.005" pos="0.11920159847703672 0.0 -0.011960053295255069"  />
+        <site name="table_6_1" type="sphere" size="0.005" pos="0.11920159847703672 0.02 -0.011960053295255069"  />
+        <site name="table_6_2" type="sphere" size="0.005" pos="0.11920159847703672 0.04 -0.011960053295255069"  />
+        <site name="table_6_3" type="sphere" size="0.005" pos="0.11920159847703672 0.06 -0.011960053295255069"  />
+        <site name="table_6_4" type="sphere" size="0.005" pos="0.11920159847703672 0.08 -0.011960053295255069"  />
+        <site name="table_6_5" type="sphere" size="0.005" pos="0.11920159847703672 0.1 -0.011960053295255069"  />
+        <site name="table_7_0" type="sphere" size="0.005" pos="0.13873308338057913 0.0 -0.016259362751129602"  />
+        <site name="table_7_1" type="sphere" size="0.005" pos="0.13873308338057913 0.02 -0.016259362751129602"  />
+        <site name="table_7_2" type="sphere" size="0.005" pos="0.13873308338057913 0.04 -0.016259362751129602"  />
+        <site name="table_7_3" type="sphere" size="0.005" pos="0.13873308338057913 0.06 -0.016259362751129602"  />
+        <site name="table_7_4" type="sphere" size="0.005" pos="0.13873308338057913 0.08 -0.016259362751129602"  />
+        <site name="table_7_5" type="sphere" size="0.005" pos="0.13873308338057913 0.1 -0.016259362751129602"  />
+        <site name="table_8_0" type="sphere" size="0.005" pos="0.15811043468612104 0.0 -0.021207212861661717"  />
+        <site name="table_8_1" type="sphere" size="0.005" pos="0.15811043468612104 0.02 -0.021207212861661717"  />
+        <site name="table_8_2" type="sphere" size="0.005" pos="0.15811043468612104 0.04 -0.021207212861661717"  />
+        <site name="table_8_3" type="sphere" size="0.005" pos="0.15811043468612104 0.06 -0.021207212861661717"  />
+        <site name="table_8_4" type="sphere" size="0.005" pos="0.15811043468612104 0.08 -0.021207212861661717"  />
+        <site name="table_8_5" type="sphere" size="0.005" pos="0.15811043468612104 0.1 -0.021207212861661717"  />
+        <site name="table_9_0" type="sphere" size="0.005" pos="0.1773121239968037 0.0 -0.026798106524636434"  />
+        <site name="table_9_1" type="sphere" size="0.005" pos="0.1773121239968037 0.02 -0.026798106524636434"  />
+        <site name="table_9_2" type="sphere" size="0.005" pos="0.1773121239968037 0.04 -0.026798106524636434"  />
+        <site name="table_9_3" type="sphere" size="0.005" pos="0.1773121239968037 0.06 -0.026798106524636434"  />
+        <site name="table_9_4" type="sphere" size="0.005" pos="0.1773121239968037 0.08 -0.026798106524636434"  />
+        <site name="table_9_5" type="sphere" size="0.005" pos="0.1773121239968037 0.1 -0.026798106524636434"  />
+        <site name="table_10_0" type="sphere" size="0.005" pos="0.19631681807769133 0.0 -0.0330258322111574"  />
+        <site name="table_10_1" type="sphere" size="0.005" pos="0.19631681807769133 0.02 -0.0330258322111574"  />
+        <site name="table_10_2" type="sphere" size="0.005" pos="0.19631681807769133 0.04 -0.0330258322111574"  />
+        <site name="table_10_3" type="sphere" size="0.005" pos="0.19631681807769133 0.06 -0.0330258322111574"  />
+        <site name="table_10_4" type="sphere" size="0.005" pos="0.19631681807769133 0.08 -0.0330258322111574"  />
+        <site name="table_10_5" type="sphere" size="0.005" pos="0.19631681807769133 0.1 -0.0330258322111574"  />
+        <site name="table_11_0" type="sphere" size="0.005" pos="0.2151034025571703 0.0 -0.039883470866706294"  />
+        <site name="table_11_1" type="sphere" size="0.005" pos="0.2151034025571703 0.02 -0.039883470866706294"  />
+        <site name="table_11_2" type="sphere" size="0.005" pos="0.2151034025571703 0.04 -0.039883470866706294"  />
+        <site name="table_11_3" type="sphere" size="0.005" pos="0.2151034025571703 0.06 -0.039883470866706294"  />
+        <site name="table_11_4" type="sphere" size="0.005" pos="0.2151034025571703 0.08 -0.039883470866706294"  />
+        <site name="table_11_5" type="sphere" size="0.005" pos="0.2151034025571703 0.1 -0.039883470866706294"  />
+        <site name="table_12_0" type="sphere" size="0.005" pos="0.2336510053851903 0.0 -0.04736340359826896"  />
+        <site name="table_12_1" type="sphere" size="0.005" pos="0.2336510053851903 0.02 -0.04736340359826896"  />
+        <site name="table_12_2" type="sphere" size="0.005" pos="0.2336510053851903 0.04 -0.04736340359826896"  />
+        <site name="table_12_3" type="sphere" size="0.005" pos="0.2336510053851903 0.06 -0.04736340359826896"  />
+        <site name="table_12_4" type="sphere" size="0.005" pos="0.2336510053851903 0.08 -0.04736340359826896"  />
+        <site name="table_12_5" type="sphere" size="0.005" pos="0.2336510053851903 0.1 -0.04736340359826896"  />
+        <site name="table_13_0" type="sphere" size="0.005" pos="0.25193902002228347 0.0 -0.055457320138989075"  />
+        <site name="table_13_1" type="sphere" size="0.005" pos="0.25193902002228347 0.02 -0.055457320138989075"  />
+        <site name="table_13_2" type="sphere" size="0.005" pos="0.25193902002228347 0.04 -0.055457320138989075"  />
+        <site name="table_13_3" type="sphere" size="0.005" pos="0.25193902002228347 0.06 -0.055457320138989075"  />
+        <site name="table_13_4" type="sphere" size="0.005" pos="0.25193902002228347 0.08 -0.055457320138989075"  />
+        <site name="table_13_5" type="sphere" size="0.005" pos="0.25193902002228347 0.1 -0.055457320138989075"  />
+        <site name="table_14_0" type="sphere" size="0.005" pos="0.2699471283335998 0.0 -0.06415622808094246"  />
+        <site name="table_14_1" type="sphere" size="0.005" pos="0.2699471283335998 0.02 -0.06415622808094246"  />
+        <site name="table_14_2" type="sphere" size="0.005" pos="0.2699471283335998 0.04 -0.06415622808094246"  />
+        <site name="table_14_3" type="sphere" size="0.005" pos="0.2699471283335998 0.06 -0.06415622808094246"  />
+        <site name="table_14_4" type="sphere" size="0.005" pos="0.2699471283335998 0.08 -0.06415622808094246"  />
+        <site name="table_14_5" type="sphere" size="0.005" pos="0.2699471283335998 0.1 -0.06415622808094246"  />
+        <site name="table_15_0" type="sphere" size="0.005" pos="0.2876553231625218 0.0 -0.07345046286577639"  />
+        <site name="table_15_1" type="sphere" size="0.005" pos="0.2876553231625218 0.02 -0.07345046286577639"  />
+        <site name="table_15_2" type="sphere" size="0.005" pos="0.2876553231625218 0.04 -0.07345046286577639"  />
+        <site name="table_15_3" type="sphere" size="0.005" pos="0.2876553231625218 0.06 -0.07345046286577639"  />
+        <site name="table_15_4" type="sphere" size="0.005" pos="0.2876553231625218 0.08 -0.07345046286577639"  />
+        <site name="table_15_5" type="sphere" size="0.005" pos="0.2876553231625218 0.1 -0.07345046286577639"  />
+        <site name="table_16_0" type="sphere" size="0.005" pos="0.3050439305587807 0.0 -0.0833296985221138"  />
+        <site name="table_16_1" type="sphere" size="0.005" pos="0.3050439305587807 0.02 -0.0833296985221138"  />
+        <site name="table_16_2" type="sphere" size="0.005" pos="0.3050439305587807 0.04 -0.0833296985221138"  />
+        <site name="table_16_3" type="sphere" size="0.005" pos="0.3050439305587807 0.06 -0.0833296985221138"  />
+        <site name="table_16_4" type="sphere" size="0.005" pos="0.3050439305587807 0.08 -0.0833296985221138"  />
+        <site name="table_16_5" type="sphere" size="0.005" pos="0.3050439305587807 0.1 -0.0833296985221138"  />
+        <site name="table_17_0" type="sphere" size="0.005" pos="0.3220936316363768 0.0 -0.09378295913779233"  />
+        <site name="table_17_1" type="sphere" size="0.005" pos="0.3220936316363768 0.02 -0.09378295913779233"  />
+        <site name="table_17_2" type="sphere" size="0.005" pos="0.3220936316363768 0.04 -0.09378295913779233"  />
+        <site name="table_17_3" type="sphere" size="0.005" pos="0.3220936316363768 0.06 -0.09378295913779233"  />
+        <site name="table_17_4" type="sphere" size="0.005" pos="0.3220936316363768 0.08 -0.09378295913779233"  />
+        <site name="table_17_5" type="sphere" size="0.005" pos="0.3220936316363768 0.1 -0.09378295913779233"  />
+        <site name="table_18_0" type="sphere" size="0.005" pos="0.3387854840370212 0.0 -0.10479863105419301"  />
+        <site name="table_18_1" type="sphere" size="0.005" pos="0.3387854840370212 0.02 -0.10479863105419301"  />
+        <site name="table_18_2" type="sphere" size="0.005" pos="0.3387854840370212 0.04 -0.10479863105419301"  />
+        <site name="table_18_3" type="sphere" size="0.005" pos="0.3387854840370212 0.06 -0.10479863105419301"  />
+        <site name="table_18_4" type="sphere" size="0.005" pos="0.3387854840370212 0.08 -0.10479863105419301"  />
+        <site name="table_18_5" type="sphere" size="0.005" pos="0.3387854840370212 0.1 -0.10479863105419301"  />
+        <site name="table_19_0" type="sphere" size="0.005" pos="0.35510094297525174 0.0 -0.1163644757691108"  />
+        <site name="table_19_1" type="sphere" size="0.005" pos="0.35510094297525174 0.02 -0.1163644757691108"  />
+        <site name="table_19_2" type="sphere" size="0.005" pos="0.35510094297525174 0.04 -0.1163644757691108"  />
+        <site name="table_19_3" type="sphere" size="0.005" pos="0.35510094297525174 0.06 -0.1163644757691108"  />
+        <site name="table_19_4" type="sphere" size="0.005" pos="0.35510094297525174 0.08 -0.1163644757691108"  />
+        <site name="table_19_5" type="sphere" size="0.005" pos="0.35510094297525174 0.1 -0.1163644757691108"  />
+        <site name="table_20_0" type="sphere" size="0.005" pos="0.3710218818418422 0.0 -0.12846764353383117"  />
+        <site name="table_20_1" type="sphere" size="0.005" pos="0.3710218818418422 0.02 -0.12846764353383117"  />
+        <site name="table_20_2" type="sphere" size="0.005" pos="0.3710218818418422 0.04 -0.12846764353383117"  />
+        <site name="table_20_3" type="sphere" size="0.005" pos="0.3710218818418422 0.06 -0.12846764353383117"  />
+        <site name="table_20_4" type="sphere" size="0.005" pos="0.3710218818418422 0.08 -0.12846764353383117"  />
+        <site name="table_20_5" type="sphere" size="0.005" pos="0.3710218818418422 0.1 -0.12846764353383117"  />
+        <site name="table_21_0" type="sphere" size="0.005" pos="0.3865306123426146 0.0 -0.14109468762930688"  />
+        <site name="table_21_1" type="sphere" size="0.005" pos="0.3865306123426146 0.02 -0.14109468762930688"  />
+        <site name="table_21_2" type="sphere" size="0.005" pos="0.3865306123426146 0.04 -0.14109468762930688"  />
+        <site name="table_21_3" type="sphere" size="0.005" pos="0.3865306123426146 0.06 -0.14109468762930688"  />
+        <site name="table_21_4" type="sphere" size="0.005" pos="0.3865306123426146 0.08 -0.14109468762930688"  />
+        <site name="table_21_5" type="sphere" size="0.005" pos="0.3865306123426146 0.1 -0.14109468762930688"  />
+        <site name="table_22_0" type="sphere" size="0.005" pos="0.4016099041502797 0.0 -0.15423157930557352"  />
+        <site name="table_22_1" type="sphere" size="0.005" pos="0.4016099041502797 0.02 -0.15423157930557352"  />
+        <site name="table_22_2" type="sphere" size="0.005" pos="0.4016099041502797 0.04 -0.15423157930557352"  />
+        <site name="table_22_3" type="sphere" size="0.005" pos="0.4016099041502797 0.06 -0.15423157930557352"  />
+        <site name="table_22_4" type="sphere" size="0.005" pos="0.4016099041502797 0.08 -0.15423157930557352"  />
+        <site name="table_22_5" type="sphere" size="0.005" pos="0.4016099041502797 0.1 -0.15423157930557352"  />
+        <site name="table_23_0" type="sphere" size="0.005" pos="0.4162430040474722 0.0 -0.16786372336780603"  />
+        <site name="table_23_1" type="sphere" size="0.005" pos="0.4162430040474722 0.02 -0.16786372336780603"  />
+        <site name="table_23_2" type="sphere" size="0.005" pos="0.4162430040474722 0.04 -0.16786372336780603"  />
+        <site name="table_23_3" type="sphere" size="0.005" pos="0.4162430040474722 0.06 -0.16786372336780603"  />
+        <site name="table_23_4" type="sphere" size="0.005" pos="0.4162430040474722 0.08 -0.16786372336780603"  />
+        <site name="table_23_5" type="sphere" size="0.005" pos="0.4162430040474722 0.1 -0.16786372336780603"  />
+        <site name="table_24_0" type="sphere" size="0.005" pos="0.43041365453971364 0.0 -0.18197597439170077"  />
+        <site name="table_24_1" type="sphere" size="0.005" pos="0.43041365453971364 0.02 -0.18197597439170077"  />
+        <site name="table_24_2" type="sphere" size="0.005" pos="0.43041365453971364 0.04 -0.18197597439170077"  />
+        <site name="table_24_3" type="sphere" size="0.005" pos="0.43041365453971364 0.06 -0.18197597439170077"  />
+        <site name="table_24_4" type="sphere" size="0.005" pos="0.43041365453971364 0.08 -0.18197597439170077"  />
+        <site name="table_24_5" type="sphere" size="0.005" pos="0.43041365453971364 0.1 -0.18197597439170077"  />
+        <site name="table_25_0" type="sphere" size="0.005" pos="0.4441061119176222 0.0 -0.196552653550166"  />
+        <site name="table_25_1" type="sphere" size="0.005" pos="0.4441061119176222 0.02 -0.196552653550166"  />
+        <site name="table_25_2" type="sphere" size="0.005" pos="0.4441061119176222 0.04 -0.196552653550166"  />
+        <site name="table_25_3" type="sphere" size="0.005" pos="0.4441061119176222 0.06 -0.196552653550166"  />
+        <site name="table_25_4" type="sphere" size="0.005" pos="0.4441061119176222 0.08 -0.196552653550166"  />
+        <site name="table_25_5" type="sphere" size="0.005" pos="0.4441061119176222 0.1 -0.196552653550166"  />
+        <site name="table_26_0" type="sphere" size="0.005" pos="0.45730516374830377 0.0 -0.21157756603262856"  />
+        <site name="table_26_1" type="sphere" size="0.005" pos="0.45730516374830377 0.02 -0.21157756603262856"  />
+        <site name="table_26_2" type="sphere" size="0.005" pos="0.45730516374830377 0.04 -0.21157756603262856"  />
+        <site name="table_26_3" type="sphere" size="0.005" pos="0.45730516374830377 0.06 -0.21157756603262856"  />
+        <site name="table_26_4" type="sphere" size="0.005" pos="0.45730516374830377 0.08 -0.21157756603262856"  />
+        <site name="table_26_5" type="sphere" size="0.005" pos="0.45730516374830377 0.1 -0.21157756603262856"  />
+        <site name="table_27_0" type="sphere" size="0.005" pos="0.46999614577649 0.0 -0.22703401903760134"  />
+        <site name="table_27_1" type="sphere" size="0.005" pos="0.46999614577649 0.02 -0.22703401903760134"  />
+        <site name="table_27_2" type="sphere" size="0.005" pos="0.46999614577649 0.04 -0.22703401903760134"  />
+        <site name="table_27_3" type="sphere" size="0.005" pos="0.46999614577649 0.06 -0.22703401903760134"  />
+        <site name="table_27_4" type="sphere" size="0.005" pos="0.46999614577649 0.08 -0.22703401903760134"  />
+        <site name="table_27_5" type="sphere" size="0.005" pos="0.46999614577649 0.1 -0.22703401903760134"  />
+        <site name="table_28_0" type="sphere" size="0.005" pos="0.4821649582166467 0.0 -0.24290484031852327"  />
+        <site name="table_28_1" type="sphere" size="0.005" pos="0.4821649582166467 0.02 -0.24290484031852327"  />
+        <site name="table_28_2" type="sphere" size="0.005" pos="0.4821649582166467 0.04 -0.24290484031852327"  />
+        <site name="table_28_3" type="sphere" size="0.005" pos="0.4821649582166467 0.06 -0.24290484031852327"  />
+        <site name="table_28_4" type="sphere" size="0.005" pos="0.4821649582166467 0.08 -0.24290484031852327"  />
+        <site name="table_28_5" type="sphere" size="0.005" pos="0.4821649582166467 0.1 -0.24290484031852327"  />
+        <site name="table_29_0" type="sphere" size="0.005" pos="0.49379808141795156 0.0 -0.2591723972622669"  />
+        <site name="table_29_1" type="sphere" size="0.005" pos="0.49379808141795156 0.02 -0.2591723972622669"  />
+        <site name="table_29_2" type="sphere" size="0.005" pos="0.49379808141795156 0.04 -0.2591723972622669"  />
+        <site name="table_29_3" type="sphere" size="0.005" pos="0.49379808141795156 0.06 -0.2591723972622669"  />
+        <site name="table_29_4" type="sphere" size="0.005" pos="0.49379808141795156 0.08 -0.2591723972622669"  />
+        <site name="table_29_5" type="sphere" size="0.005" pos="0.49379808141795156 0.1 -0.2591723972622669"  />
+        <site name="table_30_0" type="sphere" size="0.005" pos="0.5048825908847379 0.0 -0.27581861647911615"  />
+        <site name="table_30_1" type="sphere" size="0.005" pos="0.5048825908847379 0.02 -0.27581861647911615"  />
+        <site name="table_30_2" type="sphere" size="0.005" pos="0.5048825908847379 0.04 -0.27581861647911615"  />
+        <site name="table_30_3" type="sphere" size="0.005" pos="0.5048825908847379 0.06 -0.27581861647911615"  />
+        <site name="table_30_4" type="sphere" size="0.005" pos="0.5048825908847379 0.08 -0.27581861647911615"  />
+        <site name="table_30_5" type="sphere" size="0.005" pos="0.5048825908847379 0.1 -0.27581861647911615"  />
+        <site name="table_31_0" type="sphere" size="0.005" pos="0.5154061716357152 0.0 -0.29282500388245186"  />
+        <site name="table_31_1" type="sphere" size="0.005" pos="0.5154061716357152 0.02 -0.29282500388245186"  />
+        <site name="table_31_2" type="sphere" size="0.005" pos="0.5154061716357152 0.04 -0.29282500388245186"  />
+        <site name="table_31_3" type="sphere" size="0.005" pos="0.5154061716357152 0.06 -0.29282500388245186"  />
+        <site name="table_31_4" type="sphere" size="0.005" pos="0.5154061716357152 0.08 -0.29282500388245186"  />
+        <site name="table_31_5" type="sphere" size="0.005" pos="0.5154061716357152 0.1 -0.29282500388245186"  />
+        <site name="table_32_0" type="sphere" size="0.005" pos="0.5253571318860153 0.0 -0.310172665235834"  />
+        <site name="table_32_1" type="sphere" size="0.005" pos="0.5253571318860153 0.02 -0.310172665235834"  />
+        <site name="table_32_2" type="sphere" size="0.005" pos="0.5253571318860153 0.04 -0.310172665235834"  />
+        <site name="table_32_3" type="sphere" size="0.005" pos="0.5253571318860153 0.06 -0.310172665235834"  />
+        <site name="table_32_4" type="sphere" size="0.005" pos="0.5253571318860153 0.08 -0.310172665235834"  />
+        <site name="table_32_5" type="sphere" size="0.005" pos="0.5253571318860153 0.1 -0.310172665235834"  />
+        <site name="table_33_0" type="sphere" size="0.005" pos="0.5347244160368613 0.0 -0.3278423271446536"  />
+        <site name="table_33_1" type="sphere" size="0.005" pos="0.5347244160368613 0.02 -0.3278423271446536"  />
+        <site name="table_33_2" type="sphere" size="0.005" pos="0.5347244160368613 0.04 -0.3278423271446536"  />
+        <site name="table_33_3" type="sphere" size="0.005" pos="0.5347244160368613 0.06 -0.3278423271446536"  />
+        <site name="table_33_4" type="sphere" size="0.005" pos="0.5347244160368613 0.08 -0.3278423271446536"  />
+        <site name="table_33_5" type="sphere" size="0.005" pos="0.5347244160368613 0.1 -0.3278423271446536"  />
+        <site name="table_34_0" type="sphere" size="0.005" pos="0.5434976169584287 0.0 -0.34581435846903325"  />
+        <site name="table_34_1" type="sphere" size="0.005" pos="0.5434976169584287 0.02 -0.34581435846903325"  />
+        <site name="table_34_2" type="sphere" size="0.005" pos="0.5434976169584287 0.04 -0.34581435846903325"  />
+        <site name="table_34_3" type="sphere" size="0.005" pos="0.5434976169584287 0.06 -0.34581435846903325"  />
+        <site name="table_34_4" type="sphere" size="0.005" pos="0.5434976169584287 0.08 -0.34581435846903325"  />
+        <site name="table_34_5" type="sphere" size="0.005" pos="0.5434976169584287 0.1 -0.34581435846903325"  />
+        <site name="table_35_0" type="sphere" size="0.005" pos="0.5516669875522531 0.0 -0.3640687921341853"  />
+        <site name="table_35_1" type="sphere" size="0.005" pos="0.5516669875522531 0.02 -0.3640687921341853"  />
+        <site name="table_35_2" type="sphere" size="0.005" pos="0.5516669875522531 0.04 -0.3640687921341853"  />
+        <site name="table_35_3" type="sphere" size="0.005" pos="0.5516669875522531 0.06 -0.3640687921341853"  />
+        <site name="table_35_4" type="sphere" size="0.005" pos="0.5516669875522531 0.08 -0.3640687921341853"  />
+        <site name="table_35_5" type="sphere" size="0.005" pos="0.5516669875522531 0.1 -0.3640687921341853"  />
+    </body>
+
+    
+    <!-- GRIPPER -->
+    <!-- <geom name='eePoint' pos='0 0.3 0' type='box' size='0.005 0.005 0.005' rgba='1 0 0 1' /> -->
+<body name="gripperLink_0" pos="0 0 2.5" euler="0 0 0">
+      <joint name="trans_x" type="slide" class="gripperTrans" pos="0 0 0" axis="1 0 0" />
+      <joint name="trans_y" type="slide" class="gripperTrans" pos="0 0 0" axis="0 1 0" />
+      <joint name="trans_z" type="slide" class="gripperTrans" pos="0 0 0" axis="0 0 1" />
+      <joint name="rot_x" class="gripperRot" pos="0 0 0" axis="1 0 0" />
+      <joint name="rot_y" class="gripperRot" pos="0 0 0" axis="0 1 0" />
+      <joint name="rot_z" class="gripperRot" pos="0 0 0" axis="0 0 1" />
+
+      <!--          <inertial pos="0 0 0" quat="1 0 0 0" mass="4" diaginertia="0 0 0" /> -->
+      <geom pos='0 -0.19 0' type='cylinder' size='0.1 0.04' quat='0.7071068 0.7071068 0 0' condim='3' density='10' />
+      <geom pos='0.1 -0.23 0' type='sphere' size='0.01' rgba='1 0 0 1' density='1' />
+      <geom pos='0 -0.23 0.1' type='sphere' size='0.01' rgba='0 0 1 1' density='1' />
+      
+      <!-- <geom pos='0 -0.19 0.05' type='box' size='0.01 0.01 0.05' condim='3'  density='10'  />
+      <body name='camera' pos='0 -0.19 0.12' euler="20 0 0" >
+        <geom pos='0 0 0' type='box' size='0.08 0.02 0.02' density='10'  />
+        <camera name='c1' euler="0 0 0" fovy="90" pos="0 .01 .01">
+        </camera>
+      </body> -->
+
+      <body name='left_finger' pos='-0.06 -0.14 0' quat='1 0 0 0'>
+        <joint name='l_f' type='slide' pos='0 0 0' axis='1 0 0' range='0 0.05' damping='10' limited='true' solreflimit='1e-3 1' solimplimit=".99 .99 .01" />
+        <geom pos='0 0.05 0' type='box' size='0.007 0.05 0.015' condim='6' friction='1 0.02 0.0005' density='10'  />
+        <!-- Fingertip -->
+        <body name='left_fingertip' pos='0 0.14 0' quat='0.7071068 0 0.7071068 0'>
+          <geom pos='0 0 0' type='box' size='0.04 0.04 0.01' condim='6'  friction='1 0.04 0.001' solref='1e-4 1' density='2000'  />
+          <!-- Four anchor points for cross tendons, in order to implement shear force sensor -->
+          <site name="left_cross_bottom_1" pos="0.04  0 0.01" type='sphere' size='0.003' />
+          <site name="left_cross_bottom_2" pos="-0.04 0 0.01" type='sphere' size='0.003' />
+          <site name="left_cross_bottom_3" pos="0  0.04 0.01" type='sphere' size='0.003' />
+          <site name="left_cross_bottom_4" pos="0 -0.04 0.01" type='sphere' size='0.003' />
+          <body name='left_finger_skin' pos='0 0 0.015' >
+            <geom pos='0 0 0' type='box' size='0.06 0.06 0.003'  solref='1e-4 1'  />
+            <site pos='0 0 -0.003' type='box' size='0.061 0.061 0.006' name='leftFingerMainTouch' rgba='1 1 0 0.2' />
+          </body>
+        </body>
+      </body>
+
+      <body name='right_finger' pos='0.06 -0.14 0' quat='1 0 0 0'>
+        <joint name='r_f' type='slide' pos='0 0 0' axis='-1 0 0' range='0 0.05' damping='10' limited='true'  solreflimit='1e-3 1' solimplimit=".99 .99 .01" />
+        <geom pos='0 0.05 0' type='box' size='0.007 0.05 0.015' condim='6' friction='1 0.02 0.0005' density='10'  />
+        <!-- Fingertip -->
+        <body name='right_fingertip' pos='0 0.14 0' quat='-0.7071068 0 0.7071068 0'>
+          <geom pos='0 0 0' type='box' size='0.04 0.04 0.01' condim='6'  friction='1 0.04 0.001' solref='1e-4 1' density='2000'  />
+          <!-- Four anchor points for cross tendons, in order to implement shear force sensor -->
+          <site name="right_cross_bottom_1" pos="0.04  0 0.01" type='sphere' size='0.003' />
+          <site name="right_cross_bottom_2" pos="-0.04 0 0.01" type='sphere' size='0.003' />
+          <site name="right_cross_bottom_3" pos="0  0.04 0.01" type='sphere' size='0.003' />
+          <site name="right_cross_bottom_4" pos="0 -0.04 0.01" type='sphere' size='0.003' />
+          <body name='right_finger_skin' pos='0 0 0.015' >
+            <geom pos='0 0 0' type='box' size='0.06 0.06 0.003'  solref='1e-4 1' />
+            <site pos='0 0 -0.003' type='box' size='0.061 0.061 0.006' name='rightFingerMainTouch' rgba='1 1 0 0.2' />
+          </body>
+        </body>
+      </body>
+    </body>
+
+      <!-- Insert velcro here! -->
+        <body name="comp_0_0" pos="0.0 0.0 0.025000000000000022" >
+            <joint type="free" name="comp_0_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_0_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_0_1" pos="0.0 0.02 0.025000000000000022" >
+            <joint type="free" name="comp_0_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_0_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_0_2" pos="0.0 0.04 0.025000000000000022" >
+            <joint type="free" name="comp_0_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_0_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_0_3" pos="0.0 0.06 0.025000000000000022" >
+            <joint type="free" name="comp_0_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_0_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_0_4" pos="0.0 0.08 0.025000000000000022" >
+            <joint type="free" name="comp_0_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_0_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_0_5" pos="0.0 0.1 0.025000000000000022" >
+            <joint type="free" name="comp_0_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_0_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_1_0" pos="0.020329568110419707 0.0 0.02466114248854978" >
+            <joint type="free" name="comp_1_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_1_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_1_1" pos="0.020329568110419707 0.02 0.02466114248854978" >
+            <joint type="free" name="comp_1_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_1_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_1_2" pos="0.020329568110419707 0.04 0.02466114248854978" >
+            <joint type="free" name="comp_1_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_1_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_1_3" pos="0.020329568110419707 0.06 0.02466114248854978" >
+            <joint type="free" name="comp_1_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_1_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_1_4" pos="0.020329568110419707 0.08 0.02466114248854978" >
+            <joint type="free" name="comp_1_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_1_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_1_5" pos="0.020329568110419707 0.1 0.02466114248854978" >
+            <joint type="free" name="comp_1_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_1_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_2_0" pos="0.040636549903269724 0.0 0.023644946427684665" >
+            <joint type="free" name="comp_2_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_2_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_2_1" pos="0.040636549903269724 0.02 0.023644946427684665" >
+            <joint type="free" name="comp_2_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_2_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_2_2" pos="0.040636549903269724 0.04 0.023644946427684665" >
+            <joint type="free" name="comp_2_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_2_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_2_3" pos="0.040636549903269724 0.06 0.023644946427684665" >
+            <joint type="free" name="comp_2_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_2_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_2_4" pos="0.040636549903269724 0.08 0.023644946427684665" >
+            <joint type="free" name="comp_2_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_2_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_2_5" pos="0.040636549903269724 0.1 0.023644946427684665" >
+            <joint type="free" name="comp_2_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_2_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_3_0" pos="0.06089838415456517 0.0 0.021952540819595745" >
+            <joint type="free" name="comp_3_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_3_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_3_1" pos="0.06089838415456517 0.02 0.021952540819595745" >
+            <joint type="free" name="comp_3_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_3_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_3_2" pos="0.06089838415456517 0.04 0.021952540819595745" >
+            <joint type="free" name="comp_3_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_3_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_3_3" pos="0.06089838415456517 0.06 0.021952540819595745" >
+            <joint type="free" name="comp_3_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_3_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_3_4" pos="0.06089838415456517 0.08 0.021952540819595745" >
+            <joint type="free" name="comp_3_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_3_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_3_5" pos="0.06089838415456517 0.1 0.021952540819595745" >
+            <joint type="free" name="comp_3_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_3_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_4_0" pos="0.08109255979961158 0.0 0.019585805940849466" >
+            <joint type="free" name="comp_4_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_4_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_4_1" pos="0.08109255979961158 0.02 0.019585805940849466" >
+            <joint type="free" name="comp_4_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_4_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_4_2" pos="0.08109255979961158 0.04 0.019585805940849466" >
+            <joint type="free" name="comp_4_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_4_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_4_3" pos="0.08109255979961158 0.06 0.019585805940849466" >
+            <joint type="free" name="comp_4_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_4_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_4_4" pos="0.08109255979961158 0.08 0.019585805940849466" >
+            <joint type="free" name="comp_4_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_4_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_4_5" pos="0.08109255979961158 0.1 0.019585805940849466" >
+            <joint type="free" name="comp_4_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_4_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_5_0" pos="0.10119664094298315 0.0 0.016547371253384346" >
+            <joint type="free" name="comp_5_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_5_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_5_1" pos="0.10119664094298315 0.02 0.016547371253384346" >
+            <joint type="free" name="comp_5_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_5_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_5_2" pos="0.10119664094298315 0.04 0.016547371253384346" >
+            <joint type="free" name="comp_5_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_5_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_5_3" pos="0.10119664094298315 0.06 0.016547371253384346" >
+            <joint type="free" name="comp_5_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_5_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_5_4" pos="0.10119664094298315 0.08 0.016547371253384346" >
+            <joint type="free" name="comp_5_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_5_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_5_5" pos="0.10119664094298315 0.1 0.016547371253384346" >
+            <joint type="free" name="comp_5_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_5_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_6_0" pos="0.12118829178498734 0.0 0.012840612483157376" >
+            <joint type="free" name="comp_6_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_6_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_6_1" pos="0.12118829178498734 0.02 0.012840612483157376" >
+            <joint type="free" name="comp_6_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_6_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_6_2" pos="0.12118829178498734 0.04 0.012840612483157376" >
+            <joint type="free" name="comp_6_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_6_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_6_3" pos="0.12118829178498734 0.06 0.012840612483157376" >
+            <joint type="free" name="comp_6_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_6_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_6_4" pos="0.12118829178498734 0.08 0.012840612483157376" >
+            <joint type="free" name="comp_6_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_6_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_6_5" pos="0.12118829178498734 0.1 0.012840612483157376" >
+            <joint type="free" name="comp_6_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_6_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_7_0" pos="0.14104530143692212 0.0 0.00846964786968496" >
+            <joint type="free" name="comp_7_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_7_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_7_1" pos="0.14104530143692212 0.02 0.00846964786968496" >
+            <joint type="free" name="comp_7_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_7_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_7_2" pos="0.14104530143692212 0.04 0.00846964786968496" >
+            <joint type="free" name="comp_7_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_7_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_7_3" pos="0.14104530143692212 0.06 0.00846964786968496" >
+            <joint type="free" name="comp_7_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_7_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_7_4" pos="0.14104530143692212 0.08 0.00846964786968496" >
+            <joint type="free" name="comp_7_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_7_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_7_5" pos="0.14104530143692212 0.1 0.00846964786968496" >
+            <joint type="free" name="comp_7_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_7_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_8_0" pos="0.16074560859755638 0.0 0.003439333590643967" >
+            <joint type="free" name="comp_8_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_8_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_8_1" pos="0.16074560859755638 0.02 0.003439333590643967" >
+            <joint type="free" name="comp_8_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_8_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_8_2" pos="0.16074560859755638 0.04 0.003439333590643967" >
+            <joint type="free" name="comp_8_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_8_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_8_3" pos="0.16074560859755638 0.06 0.003439333590643967" >
+            <joint type="free" name="comp_8_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_8_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_8_4" pos="0.16074560859755638 0.08 0.003439333590643967" >
+            <joint type="free" name="comp_8_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_8_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_8_5" pos="0.16074560859755638 0.1 0.003439333590643967" >
+            <joint type="free" name="comp_8_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_8_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_9_0" pos="0.1802673260634171 0.0 -0.002244741633380287" >
+            <joint type="free" name="comp_9_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_9_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_9_1" pos="0.1802673260634171 0.02 -0.002244741633380287" >
+            <joint type="free" name="comp_9_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_9_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_9_2" pos="0.1802673260634171 0.04 -0.002244741633380287" >
+            <joint type="free" name="comp_9_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_9_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_9_3" pos="0.1802673260634171 0.06 -0.002244741633380287" >
+            <joint type="free" name="comp_9_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_9_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_9_4" pos="0.1802673260634171 0.08 -0.002244741633380287" >
+            <joint type="free" name="comp_9_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_9_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_9_5" pos="0.1802673260634171 0.1 -0.002244741633380287" >
+            <joint type="free" name="comp_9_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_9_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_10_0" pos="0.19958876504565284 0.0 -0.008576262748009933" >
+            <joint type="free" name="comp_10_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_10_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_10_1" pos="0.19958876504565284 0.02 -0.008576262748009933" >
+            <joint type="free" name="comp_10_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_10_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_10_2" pos="0.19958876504565284 0.04 -0.008576262748009933" >
+            <joint type="free" name="comp_10_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_10_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_10_3" pos="0.19958876504565284 0.06 -0.008576262748009933" >
+            <joint type="free" name="comp_10_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_10_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_10_4" pos="0.19958876504565284 0.08 -0.008576262748009933" >
+            <joint type="free" name="comp_10_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_10_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_10_5" pos="0.19958876504565284 0.1 -0.008576262748009933" >
+            <joint type="free" name="comp_10_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_10_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_11_0" pos="0.21868845926645647 0.0 -0.015548195381151375" >
+            <joint type="free" name="comp_11_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_11_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_11_1" pos="0.21868845926645647 0.02 -0.015548195381151375" >
+            <joint type="free" name="comp_11_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_11_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_11_2" pos="0.21868845926645647 0.04 -0.015548195381151375" >
+            <joint type="free" name="comp_11_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_11_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_11_3" pos="0.21868845926645647 0.06 -0.015548195381151375" >
+            <joint type="free" name="comp_11_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_11_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_11_4" pos="0.21868845926645647 0.08 -0.015548195381151375" >
+            <joint type="free" name="comp_11_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_11_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_11_5" pos="0.21868845926645647 0.1 -0.015548195381151375" >
+            <joint type="free" name="comp_11_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_11_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_12_0" pos="0.23754518880827682 0.0 -0.02315279365824008" >
+            <joint type="free" name="comp_12_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_12_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_12_1" pos="0.23754518880827682 0.02 -0.02315279365824008" >
+            <joint type="free" name="comp_12_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_12_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_12_2" pos="0.23754518880827682 0.04 -0.02315279365824008" >
+            <joint type="free" name="comp_12_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_12_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_12_3" pos="0.23754518880827682 0.06 -0.02315279365824008" >
+            <joint type="free" name="comp_12_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_12_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_12_4" pos="0.23754518880827682 0.08 -0.02315279365824008" >
+            <joint type="free" name="comp_12_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_12_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_12_5" pos="0.23754518880827682 0.1 -0.02315279365824008" >
+            <joint type="free" name="comp_12_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_12_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_13_0" pos="0.25613800368932155 0.0 -0.03138160880797214" >
+            <joint type="free" name="comp_13_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_13_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_13_1" pos="0.25613800368932155 0.02 -0.03138160880797214" >
+            <joint type="free" name="comp_13_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_13_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_13_2" pos="0.25613800368932155 0.04 -0.03138160880797214" >
+            <joint type="free" name="comp_13_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_13_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_13_3" pos="0.25613800368932155 0.06 -0.03138160880797214" >
+            <joint type="free" name="comp_13_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_13_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_13_4" pos="0.25613800368932155 0.08 -0.03138160880797214" >
+            <joint type="free" name="comp_13_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_13_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_13_5" pos="0.25613800368932155 0.1 -0.03138160880797214" >
+            <joint type="free" name="comp_13_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_13_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_14_0" pos="0.27444624713915977 0.0 -0.04022549854895807" >
+            <joint type="free" name="comp_14_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_14_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_14_1" pos="0.27444624713915977 0.02 -0.04022549854895807" >
+            <joint type="free" name="comp_14_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_14_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_14_2" pos="0.27444624713915977 0.04 -0.04022549854895807" >
+            <joint type="free" name="comp_14_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_14_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_14_3" pos="0.27444624713915977 0.06 -0.04022549854895807" >
+            <joint type="free" name="comp_14_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_14_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_14_4" pos="0.27444624713915977 0.08 -0.04022549854895807" >
+            <joint type="free" name="comp_14_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_14_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_14_5" pos="0.27444624713915977 0.1 -0.04022549854895807" >
+            <joint type="free" name="comp_14_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_14_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_15_0" pos="0.29244957854856385 0.0 -0.0496746372468726" >
+            <joint type="free" name="comp_15_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_15_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_15_1" pos="0.29244957854856385 0.02 -0.0496746372468726" >
+            <joint type="free" name="comp_15_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_15_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_15_2" pos="0.29244957854856385 0.04 -0.0496746372468726" >
+            <joint type="free" name="comp_15_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_15_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_15_3" pos="0.29244957854856385 0.06 -0.0496746372468726" >
+            <joint type="free" name="comp_15_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_15_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_15_4" pos="0.29244957854856385 0.08 -0.0496746372468726" >
+            <joint type="free" name="comp_15_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_15_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_15_5" pos="0.29244957854856385 0.1 -0.0496746372468726" >
+            <joint type="free" name="comp_15_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_15_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_16_0" pos="0.3101279960680937 0.0 -0.05971852683081569" >
+            <joint type="free" name="comp_16_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_16_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_16_1" pos="0.3101279960680937 0.02 -0.05971852683081569" >
+            <joint type="free" name="comp_16_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_16_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_16_2" pos="0.3101279960680937 0.04 -0.05971852683081569" >
+            <joint type="free" name="comp_16_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_16_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_16_3" pos="0.3101279960680937 0.06 -0.05971852683081569" >
+            <joint type="free" name="comp_16_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_16_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_16_4" pos="0.3101279960680937 0.08 -0.05971852683081569" >
+            <joint type="free" name="comp_16_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_16_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_16_5" pos="0.3101279960680937 0.1 -0.05971852683081569" >
+            <joint type="free" name="comp_16_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_16_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_17_0" pos="0.32746185883031637 0.0 -0.07034600845675554" >
+            <joint type="free" name="comp_17_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_17_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_17_1" pos="0.32746185883031637 0.02 -0.07034600845675554" >
+            <joint type="free" name="comp_17_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_17_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_17_2" pos="0.32746185883031637 0.04 -0.07034600845675554" >
+            <joint type="free" name="comp_17_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_17_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_17_3" pos="0.32746185883031637 0.06 -0.07034600845675554" >
+            <joint type="free" name="comp_17_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_17_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_17_4" pos="0.32746185883031637 0.08 -0.07034600845675554" >
+            <joint type="free" name="comp_17_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_17_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_17_5" pos="0.32746185883031637 0.1 -0.07034600845675554" >
+            <joint type="free" name="comp_17_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_17_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_18_0" pos="0.3444319087709716 0.0 -0.08154527490509622" >
+            <joint type="free" name="comp_18_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_18_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_18_1" pos="0.3444319087709716 0.02 -0.08154527490509622" >
+            <joint type="free" name="comp_18_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_18_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_18_2" pos="0.3444319087709716 0.04 -0.08154527490509622" >
+            <joint type="free" name="comp_18_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_18_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_18_3" pos="0.3444319087709716 0.06 -0.08154527490509622" >
+            <joint type="free" name="comp_18_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_18_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_18_4" pos="0.3444319087709716 0.08 -0.08154527490509622" >
+            <joint type="free" name="comp_18_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_18_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_18_5" pos="0.3444319087709716 0.1 -0.08154527490509622" >
+            <joint type="free" name="comp_18_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_18_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_19_0" pos="0.3610192920248393 0.0 -0.09330388369859594" >
+            <joint type="free" name="comp_19_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_19_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_19_1" pos="0.3610192920248393 0.02 -0.09330388369859594" >
+            <joint type="free" name="comp_19_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_19_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_19_2" pos="0.3610192920248393 0.04 -0.09330388369859594" >
+            <joint type="free" name="comp_19_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_19_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_19_3" pos="0.3610192920248393 0.06 -0.09330388369859594" >
+            <joint type="free" name="comp_19_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_19_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_19_4" pos="0.3610192920248393 0.08 -0.09330388369859594" >
+            <joint type="free" name="comp_19_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_19_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_19_5" pos="0.3610192920248393 0.1 -0.09330388369859594" >
+            <joint type="free" name="comp_19_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_19_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_20_0" pos="0.37720557987253955 0.0 -0.10560877092606169" >
+            <joint type="free" name="comp_20_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_20_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_20_1" pos="0.37720557987253955 0.02 -0.10560877092606169" >
+            <joint type="free" name="comp_20_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_20_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_20_2" pos="0.37720557987253955 0.04 -0.10560877092606169" >
+            <joint type="free" name="comp_20_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_20_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_20_3" pos="0.37720557987253955 0.06 -0.10560877092606169" >
+            <joint type="free" name="comp_20_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_20_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_20_4" pos="0.37720557987253955 0.08 -0.10560877092606169" >
+            <joint type="free" name="comp_20_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_20_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_20_5" pos="0.37720557987253955 0.1 -0.10560877092606169" >
+            <joint type="free" name="comp_20_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_20_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_21_0" pos="0.3929727892149915 0.0 -0.118446265756462" >
+            <joint type="free" name="comp_21_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_21_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_21_1" pos="0.3929727892149915 0.02 -0.118446265756462" >
+            <joint type="free" name="comp_21_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_21_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_21_2" pos="0.3929727892149915 0.04 -0.118446265756462" >
+            <joint type="free" name="comp_21_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_21_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_21_3" pos="0.3929727892149915 0.06 -0.118446265756462" >
+            <joint type="free" name="comp_21_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_21_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_21_4" pos="0.3929727892149915 0.08 -0.118446265756462" >
+            <joint type="free" name="comp_21_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_21_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_21_5" pos="0.3929727892149915 0.1 -0.118446265756462" >
+            <joint type="free" name="comp_21_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_21_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_22_0" pos="0.40830340255278436 0.0 -0.13180210562733308" >
+            <joint type="free" name="comp_22_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_22_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_22_1" pos="0.40830340255278436 0.02 -0.13180210562733308" >
+            <joint type="free" name="comp_22_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_22_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_22_2" pos="0.40830340255278436 0.04 -0.13180210562733308" >
+            <joint type="free" name="comp_22_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_22_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_22_3" pos="0.40830340255278436 0.06 -0.13180210562733308" >
+            <joint type="free" name="comp_22_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_22_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_22_4" pos="0.40830340255278436 0.08 -0.13180210562733308" >
+            <joint type="free" name="comp_22_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_22_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_22_5" pos="0.40830340255278436 0.1 -0.13180210562733308" >
+            <joint type="free" name="comp_22_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_22_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_23_0" pos="0.4231803874482634 0.0 -0.14566145209060277" >
+            <joint type="free" name="comp_23_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_23_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_23_1" pos="0.4231803874482634 0.02 -0.14566145209060277" >
+            <joint type="free" name="comp_23_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_23_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_23_2" pos="0.4231803874482634 0.04 -0.14566145209060277" >
+            <joint type="free" name="comp_23_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_23_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_23_3" pos="0.4231803874482634 0.06 -0.14566145209060277" >
+            <joint type="free" name="comp_23_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_23_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_23_4" pos="0.4231803874482634 0.08 -0.14566145209060277" >
+            <joint type="free" name="comp_23_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_23_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_23_5" pos="0.4231803874482634 0.1 -0.14566145209060277" >
+            <joint type="free" name="comp_23_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_23_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_24_0" pos="0.4375872154487089 0.0 -0.16000890729822909" >
+            <joint type="free" name="comp_24_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_24_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_24_1" pos="0.4375872154487089 0.02 -0.16000890729822909" >
+            <joint type="free" name="comp_24_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_24_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_24_2" pos="0.4375872154487089 0.04 -0.16000890729822909" >
+            <joint type="free" name="comp_24_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_24_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_24_3" pos="0.4375872154487089 0.06 -0.16000890729822909" >
+            <joint type="free" name="comp_24_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_24_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_24_4" pos="0.4375872154487089 0.08 -0.16000890729822909" >
+            <joint type="free" name="comp_24_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_24_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_24_5" pos="0.4375872154487089 0.1 -0.16000890729822909" >
+            <joint type="free" name="comp_24_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_24_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_25_0" pos="0.4515078804495826 0.0 -0.17482853110933538" >
+            <joint type="free" name="comp_25_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_25_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_25_1" pos="0.4515078804495826 0.02 -0.17482853110933538" >
+            <joint type="free" name="comp_25_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_25_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_25_2" pos="0.4515078804495826 0.04 -0.17482853110933538" >
+            <joint type="free" name="comp_25_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_25_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_25_3" pos="0.4515078804495826 0.06 -0.17482853110933538" >
+            <joint type="free" name="comp_25_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_25_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_25_4" pos="0.4515078804495826 0.08 -0.17482853110933538" >
+            <joint type="free" name="comp_25_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_25_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_25_5" pos="0.4515078804495826 0.1 -0.17482853110933538" >
+            <joint type="free" name="comp_25_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_25_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_26_0" pos="0.4649269164774422 0.0 -0.190103858799839" >
+            <joint type="free" name="comp_26_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_26_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_26_1" pos="0.4649269164774422 0.02 -0.190103858799839" >
+            <joint type="free" name="comp_26_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_26_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_26_2" pos="0.4649269164774422 0.04 -0.190103858799839" >
+            <joint type="free" name="comp_26_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_26_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_26_3" pos="0.4649269164774422 0.06 -0.190103858799839" >
+            <joint type="free" name="comp_26_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_26_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_26_4" pos="0.4649269164774422 0.08 -0.190103858799839" >
+            <joint type="free" name="comp_26_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_26_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_26_5" pos="0.4649269164774422 0.1 -0.190103858799839" >
+            <joint type="free" name="comp_26_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_26_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_27_0" pos="0.47782941487276487 0.0 -0.20581791935489469" >
+            <joint type="free" name="comp_27_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_27_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_27_1" pos="0.47782941487276487 0.02 -0.20581791935489469" >
+            <joint type="free" name="comp_27_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_27_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_27_2" pos="0.47782941487276487 0.04 -0.20581791935489469" >
+            <joint type="free" name="comp_27_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_27_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_27_3" pos="0.47782941487276487 0.06 -0.20581791935489469" >
+            <joint type="free" name="comp_27_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_27_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_27_4" pos="0.47782941487276487 0.08 -0.20581791935489469" >
+            <joint type="free" name="comp_27_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_27_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_27_5" pos="0.47782941487276487 0.1 -0.20581791935489469" >
+            <joint type="free" name="comp_27_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_27_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_28_0" pos="0.4902010408535908 0.0 -0.221953254323832" >
+            <joint type="free" name="comp_28_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_28_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_28_1" pos="0.4902010408535908 0.02 -0.221953254323832" >
+            <joint type="free" name="comp_28_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_28_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_28_2" pos="0.4902010408535908 0.04 -0.221953254323832" >
+            <joint type="free" name="comp_28_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_28_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_28_3" pos="0.4902010408535908 0.06 -0.221953254323832" >
+            <joint type="free" name="comp_28_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_28_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_28_4" pos="0.4902010408535908 0.08 -0.221953254323832" >
+            <joint type="free" name="comp_28_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_28_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_28_5" pos="0.4902010408535908 0.1 -0.221953254323832" >
+            <joint type="free" name="comp_28_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_28_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_29_0" pos="0.5020280494415841 0.0 -0.23849193721663797" >
+            <joint type="free" name="comp_29_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_29_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_29_1" pos="0.5020280494415841 0.02 -0.23849193721663797" >
+            <joint type="free" name="comp_29_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_29_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_29_2" pos="0.5020280494415841 0.04 -0.23849193721663797" >
+            <joint type="free" name="comp_29_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_29_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_29_3" pos="0.5020280494415841 0.06 -0.23849193721663797" >
+            <joint type="free" name="comp_29_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_29_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_29_4" pos="0.5020280494415841 0.08 -0.23849193721663797" >
+            <joint type="free" name="comp_29_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_29_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_29_5" pos="0.5020280494415841 0.1 -0.23849193721663797" >
+            <joint type="free" name="comp_29_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_29_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_30_0" pos="0.5132973007328169 0.0 -0.25541559342043474" >
+            <joint type="free" name="comp_30_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_30_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_30_1" pos="0.5132973007328169 0.02 -0.25541559342043474" >
+            <joint type="free" name="comp_30_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_30_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_30_2" pos="0.5132973007328169 0.04 -0.25541559342043474" >
+            <joint type="free" name="comp_30_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_30_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_30_3" pos="0.5132973007328169 0.06 -0.25541559342043474" >
+            <joint type="free" name="comp_30_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_30_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_30_4" pos="0.5132973007328169 0.08 -0.25541559342043474" >
+            <joint type="free" name="comp_30_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_30_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_30_5" pos="0.5132973007328169 0.1 -0.25541559342043474" >
+            <joint type="free" name="comp_30_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_30_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_31_0" pos="0.5239962744963105 0.0 -0.272705420613826" >
+            <joint type="free" name="comp_31_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_31_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_31_1" pos="0.5239962744963105 0.02 -0.272705420613826" >
+            <joint type="free" name="comp_31_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_31_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_31_2" pos="0.5239962744963105 0.04 -0.272705420613826" >
+            <joint type="free" name="comp_31_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_31_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_31_3" pos="0.5239962744963105 0.06 -0.272705420613826" >
+            <joint type="free" name="comp_31_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_31_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_31_4" pos="0.5239962744963105 0.08 -0.272705420613826" >
+            <joint type="free" name="comp_31_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_31_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_31_5" pos="0.5239962744963105 0.1 -0.272705420613826" >
+            <joint type="free" name="comp_31_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_31_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_32_0" pos="0.5341130840841155 0.0 -0.2903422096564312" >
+            <joint type="free" name="comp_32_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_32_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_32_1" pos="0.5341130840841155 0.02 -0.2903422096564312" >
+            <joint type="free" name="comp_32_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_32_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_32_2" pos="0.5341130840841155 0.04 -0.2903422096564312" >
+            <joint type="free" name="comp_32_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_32_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_32_3" pos="0.5341130840841155 0.06 -0.2903422096564312" >
+            <joint type="free" name="comp_32_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_32_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_32_4" pos="0.5341130840841155 0.08 -0.2903422096564312" >
+            <joint type="free" name="comp_32_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_32_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_32_5" pos="0.5341130840841155 0.1 -0.2903422096564312" >
+            <joint type="free" name="comp_32_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_32_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_33_0" pos="0.5436364896374756 0.0 -0.3083063659303978" >
+            <joint type="free" name="comp_33_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_33_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_33_1" pos="0.5436364896374756 0.02 -0.3083063659303978" >
+            <joint type="free" name="comp_33_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_33_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_33_2" pos="0.5436364896374756 0.04 -0.3083063659303978" >
+            <joint type="free" name="comp_33_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_33_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_33_3" pos="0.5436364896374756 0.06 -0.3083063659303978" >
+            <joint type="free" name="comp_33_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_33_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_33_4" pos="0.5436364896374756 0.08 -0.3083063659303978" >
+            <joint type="free" name="comp_33_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_33_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_33_5" pos="0.5436364896374756 0.1 -0.3083063659303978" >
+            <joint type="free" name="comp_33_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_33_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_34_0" pos="0.5525559105744025 0.0 -0.3265779311101838" >
+            <joint type="free" name="comp_34_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_34_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_34_1" pos="0.5525559105744025 0.02 -0.3265779311101838" >
+            <joint type="free" name="comp_34_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_34_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_34_2" pos="0.5525559105744025 0.04 -0.3265779311101838" >
+            <joint type="free" name="comp_34_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_34_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_34_3" pos="0.5525559105744025 0.06 -0.3265779311101838" >
+            <joint type="free" name="comp_34_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_34_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_34_4" pos="0.5525559105744025 0.08 -0.3265779311101838" >
+            <joint type="free" name="comp_34_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_34_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_34_5" pos="0.5525559105744025 0.1 -0.3265779311101838" >
+            <joint type="free" name="comp_34_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_34_5_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_35_0" pos="0.5608614373447907 0.0 -0.34513660533642176" >
+            <joint type="free" name="comp_35_0" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_35_0_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_35_1" pos="0.5608614373447907 0.02 -0.34513660533642176" >
+            <joint type="free" name="comp_35_1" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_35_1_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_35_2" pos="0.5608614373447907 0.04 -0.34513660533642176" >
+            <joint type="free" name="comp_35_2" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_35_2_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_35_3" pos="0.5608614373447907 0.06 -0.34513660533642176" >
+            <joint type="free" name="comp_35_3" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_35_3_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_35_4" pos="0.5608614373447907 0.08 -0.34513660533642176" >
+            <joint type="free" name="comp_35_4" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_35_4_0" type="sphere" size="0.005" />
+        </body>
+        <body name="comp_35_5" pos="0.5608614373447907 0.1 -0.34513660533642176" >
+            <joint type="free" name="comp_35_5" />
+            <geom type="sphere" size="0.005" density="50"  />
+            <site name="comp_35_5_0" type="sphere" size="0.005" />
+        </body>
+
+    
+
+  </worldbody>
+
+  <tendon> 
+
+    <!-- Insert tendons here! -->
+  </tendon>
+   <!-- No damping term for velcro tendons -->
+
+  <actuator>
+        <!--UR5-->
+    <position name='trans_x_p' joint='trans_x' kp="130"/>
+    <position name='trans_y_p' joint='trans_y' kp="130"/>
+    <position name='trans_z_p' joint='trans_z' kp="130"/>
+    <position name='rot_x_p' ctrllimited="true" ctrlrange="-3.14159 3.14159" joint='rot_x' kp=".1"/>
+    <position name='rot_y_p' ctrllimited="true" ctrlrange="-3.14159 3.14159" joint='rot_y' kp=".1"/>
+    <position name='rot_z_p' ctrllimited="true" ctrlrange="-3.14159 3.14159" joint='rot_z' kp=".1"/>
+    <velocity name='trans_x_v' joint='trans_x' kv="130" />
+    <velocity name='trans_y_v' joint='trans_y' kv="130" />
+    <velocity name='trans_z_v' joint='trans_z' kv="130" />
+    <velocity name='rot_x_v' joint='rot_x' kv=".1" />
+    <velocity name='rot_y_v' joint='rot_y' kv=".1" />
+    <velocity name='rot_z_v' joint='rot_z' kv=".1" />
+        
+        <!--Gripper-->
+    <position name='finger_p' joint="l_f" />
+    <velocity name='finger_v' class="GRIPPER" joint='l_f' />
+  </actuator>
+
+   <equality>
+      <joint name='fingers' joint1="r_f" joint2="l_f" polycoef='0 1 0 0 0' solref="3e-4 1" solimp=".99 .99 .01" />
+   </equality>
+
+   <sensor>
+      <force name='lf_main' site='leftFingerMainTouch' cutoff='800' />
+      <force name='rf_main' site='rightFingerMainTouch' cutoff="800" />
+      <torque name='lf_main_torque' site='leftFingerMainTouch' cutoff='800' />
+      <torque name='rf_main_torque' site='rightFingerMainTouch' cutoff="800" />
+      <!-- Always put these two tri-axis force sensor in the first, 
+           when adding new sensor keep in mind that force sensordata has three elements -->
+   </sensor>
+
+</mujoco>
