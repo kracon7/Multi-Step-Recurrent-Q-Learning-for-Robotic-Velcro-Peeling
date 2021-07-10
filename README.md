@@ -1,4 +1,4 @@
-# ICRA 2020 Learning Haptics project
+# ICRA 2021. Multi-step Recurrent Q-learning for Robotic Velcro Peeling
 
 ## Environment Setup
 ### Install Mujoco
